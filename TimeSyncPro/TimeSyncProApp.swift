@@ -10,23 +10,42 @@ import SwiftData
 
 @main
 struct TimeSyncProApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+    let container: ModelContainer
+    @AppStorage("isDarkMode") private var isDarkMode = false
+    
+    init() {
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            // Configure SwiftData container with our models
+            let schema = Schema([
+                WorkSession.self,
+                Break.self
+            ])
+            let modelConfiguration = ModelConfiguration(schema: schema)
+            container = try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("Could not initialize ModelContainer: \(error)")
         }
-    }()
-
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .modelContainer(container)
+                .preferredColorScheme(isDarkMode ? .dark : nil)
         }
-        .modelContainer(sharedModelContainer)
+    }
+}
+
+// Main content view
+struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        // Create TimerViewModel with modelContext
+        let timerVM = TimerViewModel(modelContext: modelContext)
+        
+        DashboardView(timerVM: timerVM)
+            .preferredColorScheme(.light)
+            .background(Color(.systemBackground))
     }
 }
