@@ -1,4 +1,4 @@
-# TaskPro
+# TimeSyncPro
 
 ### Description ###
 The project includes an iOS app for work session / time and break tracking.
